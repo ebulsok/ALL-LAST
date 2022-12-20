@@ -55,11 +55,30 @@
       </div>
     </div>
   </nav>
-  <div class="container" style="margin-top: 80px;">
-    <a href="/record">Record</a>
-    <a href="/signup">sign up</a>
-    <a href="/signin">sign in</a>
 
+  <div class="container" style="margin-top: 80px;">
+    <form action="" method="POST" enctype="multipart/form-data">
+      <div class="row mb-3">
+        <label for="userID" class="col-sm-2 col-form-label">아이디</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="userID" name="userID">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="userPW" class="col-sm-2 col-form-label">비밀번호</label>
+        <div class="col-sm-10">
+          <input type="password" class="form-control" id="userPW" name="userPW">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="userName" class="col-sm-2 col-form-label">닉네임</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="userName" name="userName">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
   </div>
 </body>
 
