@@ -52,30 +52,99 @@
         </div>
       </div>
     </nav>
-    <h3>회원가입</h3>
-    <form action="" method="POST" enctype="multipart/form-data">
+    <h3 class="text-center">회원가입</h3>
+    <form action="/signup" method="POST" onsubmit="return checkForm()" class="text-center">
       <div class="row mb-3">
-        <label for="userID" class="col-sm-2 col-form-label">아이디</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="userID" name="userID">
+        <label for="userID" class="col-4 col-form-label">아이디</label>
+        <div class="col-6">
+          <input type="text" class="form-control" id="userID" name="userID" required>
+        </div>
+        <input type="button" class="btn btn-secondary col-2 p-1" style="font-size: 10px;" onclick="checkID()" value="중복체크">
+      </div>
+      <div class="row mb-3">
+        <label for="userPW" class="col-4 col-form-label">비밀번호</label>
+        <div class="col-6">
+          <input type="password" class="form-control" id="userPW" name="userPW" required>
         </div>
       </div>
       <div class="row mb-3">
-        <label for="userPW" class="col-sm-2 col-form-label">비밀번호</label>
-        <div class="col-sm-10">
-          <input type="password" class="form-control" id="userPW" name="userPW">
+        <label for="userName" class="col-4 col-form-label">닉네임</label>
+        <div class="col-6">
+          <input type="text" class="form-control" id="userName" name="userName" required>
         </div>
-      </div>
-      <div class="row mb-3">
-        <label for="userName" class="col-sm-2 col-form-label">닉네임</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="userName" name="userName">
-        </div>
+        <input type="button" class="btn btn-secondary col-2 p-1" style="font-size: 10px;" onclick="checkName()" value="중복체크">
       </div>
 
-      <button type="submit" class="btn btn-primary">Sign in</button>
+      <button type="submit" class="btn btn-primary">회원가입</button>
     </form>
   </div>
 </body>
+
+<script>
+  let idChecked = false;
+  let nameChecked = false;
+
+  function checkID() {
+    const data = document.getElementById('userID').value;
+    if (data) {
+      fetch('/signup/check', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            category: 'user_id',
+            data,
+          }),
+        }).then(res => res.json())
+        .then(result => {
+          console.log(result.result);
+          if (result.result) {
+            idChecked = true;
+            alert('사용 가능한 아이디 입니다.');
+          } else {
+            idChecked = false;
+            alert('중복된 아이디 입니다.')
+          }
+        })
+    } else alert('입력해주세요.')
+  }
+
+  function checkName() {
+    const data = document.getElementById('userName').value;
+    fetch('/signup/check', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          category: 'user_name',
+          data,
+        }),
+      }).then(res => res.json())
+      .then(result => {
+        console.log(result.result);
+        if (result.result) {
+          nameChecked = true;
+          alert('사용 가능한 닉네임 입니다.');
+        } else {
+          nameChecked = false;
+          alert('중복된 닉네임 입니다.')
+        }
+      })
+  }
+
+  function checkForm() {
+    if (!idChecked) {
+      alert('아이디 중복체크가 필요합니다.');
+      return false;
+    }
+    if (!nameChecked) {
+      alert('닉네임 중복체크가 필요합니다.');
+      return false;
+    }
+    return true;
+  }
+</script>
 
 </html>
