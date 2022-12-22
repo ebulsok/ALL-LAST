@@ -3,7 +3,6 @@ const express = require('express');
 
 const router = express.Router();
 const mysql = require('mysql');
-const isSignin = require('./signin').isSignin;
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -16,19 +15,66 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
+function getTotal(s1, s2, s3, s4) {
+  let obj = {};
+  if (s1 === s2) {
+    obj.total_1 = s1 + 25;
+    obj.total_2 = s2 + 25;
+    obj.total_3 = s3 - 10;
+    obj.total_4 = s4 - 20;
+  } else if (s2 === s3) {
+    obj.total_1 = s1 + 40;
+    obj.total_2 = s2;
+    obj.total_3 = s3;
+    obj.total_4 = s4 - 20;
+  } else if (s3 === s4) {
+    obj.total_1 = s1 + 40;
+    obj.total_2 = s2 + 10;
+    obj.total_3 = s3 - 15;
+    obj.total_4 = s4 - 15;
+  } else {
+    obj.total_1 = s1 + 40;
+    obj.total_2 = s2 + 10;
+    obj.total_3 = s3 - 10;
+    obj.total_4 = s4 - 20;
+  }
+  return obj;
+}
+
 router.get('/', (req, res) => {
-  if (req.session.signin) res.render('log');
-  else res.redirect('/signin');
+  if (!req.session.userName) res.redirect('/signin');
+  else {
+    const name = req.session.userName;
+    connection.query(
+      `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}';`,
+      (err, data) => {
+        if (err) throw err;
+        else {
+          let total = [];
+          for (let i = 0; i < data.length; i++) {
+            total.push(
+              getTotal(
+                (data[i].score_1 - 30000) / 1000,
+                (data[i].score_2 - 30000) / 1000,
+                (data[i].score_3 - 30000) / 1000,
+                (data[i].score_4 - 30000) / 1000
+              )
+            );
+          }
+          res.status(200).render('log', { data, total });
+        }
+      }
+    );
+  }
 });
 
 router.get('/new', (req, res) => {
-  if (req.session.signin) res.render('record');
+  if (req.session.userID) res.render('record');
   else res.redirect('/signin');
 });
 
 router.post('/new', (req, res) => {
   const d = req.body;
-  console.log(d);
   let secret = 0;
   if (d.secret === 'on') secret = 1;
 
