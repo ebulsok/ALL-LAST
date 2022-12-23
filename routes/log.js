@@ -18,7 +18,6 @@ connection.connect();
 const places = ['온라인', '마작카페', '마이티마장'];
 
 function getTotal(s1, s2, s3, s4) {
-  // 우마 계산
   let obj = {};
   if (s1 === s2) {
     obj.total_1 = s1 + 25;
@@ -44,13 +43,13 @@ function getTotal(s1, s2, s3, s4) {
   return obj;
 }
 
-// log
+// 로그
 router.get('/', (req, res) => {
   const name = req.session.userName;
 
   if (!name) res.redirect('/signin');
   else {
-    const getGame = `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}';`;
+    const getGame = `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}' ORDER BY date DESC, place, reg_date DESC;`;
     const getStar = `SELECT game_id FROM star WHERE user_id = '${req.session.userID}';`;
     connection.query(getGame + getStar, (err, data) => {
       if (err) throw err;
@@ -168,7 +167,7 @@ router.get('/star', (req, res) => {
   if (!id) res.redirect('/signin');
   else {
     connection.query(
-      `SELECT s.star_id, s.memo, g.*, DATE_FORMAT(g.date, '%Y/%m/%d') AS date FROM star AS s JOIN game AS g ON s.game_id = g.game_id WHERE user_id = '${id}';`,
+      `SELECT s.star_id, s.memo, g.*, DATE_FORMAT(g.date, '%Y/%m/%d') AS date FROM star AS s JOIN game AS g ON s.game_id = g.game_id WHERE user_id = '${id}' ORDER BY date DESC, place, reg_date DESC;`,
       (err, games) => {
         if (err) throw err;
         else {
@@ -228,4 +227,4 @@ router.delete('/star/:star_id/delete', (req, res) => {
   );
 });
 
-module.exports = router;
+module.exports = { router, getTotal };
