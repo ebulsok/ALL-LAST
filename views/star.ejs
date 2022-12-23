@@ -55,19 +55,15 @@
         </div>
       </div>
     </nav>
-    <h3>로그</h3>
+    <h3>즐겨찾기</h3>
 
     <% if(games.length > 0) { %>
     <% for(let i = 0; i < games.length; i++) { %>
     <table class="table caption-top table-borderless text-center">
       <caption class="">
         <span><%= games[i].date %>, <%= games[i].place %></span>
-        <% if(stars.find((el) => el.game_id === games[i].game_id)) { %>
-        <a class="ms-1"><i class="fa-solid fa-star"></i></a>
-        <% } else { %>
-        <a class="ms-1" data-bs-toggle="modal" data-bs-target="#starModal" data-bs-gameID=<%= games[i].game_id %>><i class="fa-regular fa-star"></i></a>
-        <% } %>
-        <a href="/log/<%= games[i].game_id %>/edit" class="ms-1"><i class="fa-regular fa-pen-to-square"></i></a>
+        <a class="ms-1" data-bs-toggle="modal" data-bs-target="#starModal" data-bs-starID=<%= games[i].star_id %>><i class="fa-regular fa-pen-to-square"></i></a>
+        <a class="ms-1" onclick="deleteStar('<%= games[i].star_id %>')"><i class="fa-solid fa-trash"></i></a>
       </caption>
       <thead>
         <tr>
@@ -102,6 +98,9 @@
           <td><%= games[i].score_4 %></td>
           <td><%= total[i].total_4 %></td>
         </tr>
+        <tr>
+          <td colspan="4" class="text-start memo"><%= games[i].memo %></td>
+        </tr>
       </tbody>
     </table>
     <% } %>
@@ -111,12 +110,12 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">즐겨찾기</h1>
+            <h1 class="modal-title fs-5">즐겨찾기</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <form action="/log/star" method="POST">
-              <input type="text" class="form-control visually-hidden" name="gameID">
+            <form action="/log/star/edit" method="POST">
+              <input type="text" class="form-control visually-hidden" name="starID">
               <div class="mb-3">
                 <label for="memo-text" class="col-form-label">메모:</label>
                 <textarea class="form-control" id="memo-text" name="memo" rows="3"></textarea>
@@ -127,7 +126,6 @@
               </div>
             </form>
           </div>
-
         </div>
       </div>
     </div>
@@ -139,14 +137,26 @@
   const modalEl = document.getElementById('starModal');
   modalEl.addEventListener('show.bs.modal', event => {
     const button = event.relatedTarget;
-    const id = button.getAttribute('data-bs-gameID');
+    const id = button.getAttribute('data-bs-starID');
+    const memoValue = button.parentNode.parentNode.querySelector('.memo').textContent;
 
     const modalInput = modalEl.querySelector('.modal-body input');
     const modalTextarea = modalEl.querySelector('.modal-body textarea');
 
     modalInput.value = id;
-    modalTextarea.value = '';
+    modalTextarea.value = memoValue;
   })
+
+  function deleteStar(id) {
+    fetch(`/log/star/${Number(id)}/delete`, {
+      method: 'delete',
+      headers: {
+        'Content-type': 'application/json'
+      },
+    }).then((res) => {
+      location.href = '/log/star';
+    })
+  }
 </script>
 
 </html>
