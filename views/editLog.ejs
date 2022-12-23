@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Last</title>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/26192e937e.js" crossorigin="anonymous"></script>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="container px-4" style="margin-top: 80px; max-width: 600px;">
+    <nav class="navbar bg-light fixed-top m-auto" style="max-width: 600px;">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">🀄 All Last</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="offcanvas offcanvas-end offc" style="width: 200px;" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-header">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">홈</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/signup">회원가입</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/signin">로그인</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/record">기록하기</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/log">마작 로그</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/score">나의 점수</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">로그아웃</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <h3>기록하기</h3>
+    <form action="/log/<%= data[0].game_id %>/edit" method="POST" onsubmit="return checkForm('<%= data[0].player_1 %>', '<%= data[0].player_2 %>', '<%= data[0].player_3 %>', '<%= data[0].player_4 %>')" class="row g-3 text-center">
+      <div class="col-6"><input type="date" class="form-control" name="date" value=<%= data[0].date %> required></div>
+      <div class="col-6">
+        <select class="form-select" name="place" selected=<%= data[0].place %> required>
+          <option value="" disabled selected>마장</option>
+          <% for(let i = 0; i < places.length; i++) { %>
+          <% if(data[0].place === places[i]) { %>
+          <option value=<%= places[i] %> selected><%= places[i] %></option>
+          <% } else { %>
+          <option value=<%= places[i] %>><%= places[i] %></option>
+          <% } %>
+          <% } %>
+        </select>
+      </div>
+
+      <label for="p1" class="form-label col-1">1</label>
+      <div class="col-4"> <input type="text" class="form-control col-3" id="p1" name="player1" oninput="oninputHandler(p1)" value=<%= data[0].player_1 %> required></div>
+      <a class="col-1" onclick="searchName('p1')"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <div class="col-6">
+        <input type="number" class="form-control" name="score1" value=<%= data[0].score_1 %> required>
+      </div>
+
+      <label for="p2" class="form-label col-1">2</label>
+      <div class="col-4"> <input type="text" class="form-control col-3" id="p2" name="player2" oninput="oninputHandler(p2)" value=<%= data[0].player_2 %> required></div>
+      <a class="col-1" onclick="searchName('p2')"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <div class="col-6">
+        <input type="number" class="form-control" name="score2" value=<%= data[0].score_2 %> required>
+      </div>
+
+      <label for="p3" class="form-label col-1">3</label>
+      <div class="col-4"> <input type="text" class="form-control col-3" id="p3" name="player3" oninput="oninputHandler(p3)" value=<%= data[0].player_3 %> required></div>
+      <a class="col-1" onclick="searchName('p3')"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <div class="col-6">
+        <input type="number" class="form-control" name="score3" value=<%= data[0].score_3 %> required>
+      </div>
+
+      <label for="p4" class="form-label col-1">4</label>
+      <div class="col-4"> <input type="text" class="form-control col-3" id="p4" name="player4" oninput="oninputHandler(p4)" value=<%= data[0].player_4 %> required></div>
+      <a class="col-1" onclick="searchName('p4')"><i class="fa-solid fa-magnifying-glass"></i></a>
+      <div class="col-6">
+        <input type="number" class="form-control" name="score4" value=<%= data[0].score_4 %> required>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check d-flex justify-content-center">
+          <% if(data[0].secret) { %>
+          <input class="form-check-input" type="checkbox" id="secret" name="secret" checked %>>
+          <% } else { %>
+          <input class="form-check-input" type="checkbox" id="secret" name="secret" %>>
+          <% } %>
+          <label class="form-check-label" for="secret">
+            비공개
+          </label>
+        </div>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">등록</button>
+        <button type="button" onclick="deleteLog('<%= data[0].game_id %>')" class="btn btn-warning">삭제</button>
+      </div>
+    </form>
+  </div>
+</body>
+
+<script>
+  let p1Checked = true;
+  let p2Checked = true;
+  let p3Checked = true;
+  let p4Checked = true;
+
+  function oninputHandler(id) {
+    if (id === 'p1') p1Checked = false;
+    else if (id === 'p2') p2Checked = false;
+    else if (id === 'p3') p3Checked = false;
+    else if (id === 'p4') p4Checked = false;
+  }
+
+  function searchName(id) {
+    const name = document.getElementById(id).value;
+    if (name) {
+      fetch('/log/new/search', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            name
+          }),
+        }).then(res => res.json())
+        .then(result => {
+          if (result.result) {
+            if (id === 'p1') p1Checked = true;
+            else if (id === 'p2') p2Checked = true;
+            else if (id === 'p3') p3Checked = true;
+            else if (id === 'p4') p4Checked = true;
+
+            alert('닉네임 검색 성공');
+          } else {
+            if (id === 'p1') p1Checked = false;
+            else if (id === 'p2') p2Checked = false;
+            else if (id === 'p3') p3Checked = false;
+            else if (id === 'p4') p4Checked = false;
+
+            alert('존재하지 않는 유저입니다.')
+          }
+        })
+    } else alert('닉네임을 입력해주세요.')
+  }
+
+  function checkForm(p1, p2, p3, p4) {
+    if (!p1Checked) {
+      alert('첫번째 플레이어 검색이 필요합니다');
+      return false;
+    }
+    if (!p2Checked) {
+      alert('두번째 플레이어 검색이 필요합니다');
+      return false;
+    }
+    if (!p3Checked) {
+      alert('세번째 플레이어 검색이 필요합니다');
+      return false;
+    }
+    if (!p4Checked) {
+      alert('네번째 플레이어 검색이 필요합니다');
+      return false;
+    }
+
+    return true;
+  }
+
+  function deleteLog(id) {
+    const msg = prompt('다른 유저들의 로그에서도 삭제됩니다!\n삭제를 원하시면 \'삭제\'를 입력해주세요.');
+    if (msg === '삭제') {
+      fetch(`/log/${id}/delete`, {
+        method: 'delete',
+        headers: {
+          'Content-type': 'application/json'
+        },
+      }).then((res) => {
+        location.href = '/log';
+      })
+    }
+  }
+</script>
+
+</html>

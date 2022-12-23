@@ -15,7 +15,10 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
+const places = ['온라인', '마작카페', '마이티마장'];
+
 function getTotal(s1, s2, s3, s4) {
+  // 우마 계산
   let obj = {};
   if (s1 === s2) {
     obj.total_1 = s1 + 25;
@@ -41,6 +44,7 @@ function getTotal(s1, s2, s3, s4) {
   return obj;
 }
 
+// log
 router.get('/', (req, res) => {
   const name = req.session.userName;
   if (!name) res.redirect('/signin');
@@ -70,11 +74,11 @@ router.get('/', (req, res) => {
   }
 });
 
+// 로그 작성
 router.get('/new', (req, res) => {
   if (req.session.userID) res.render('newLog');
   else res.redirect('/signin');
 });
-
 router.post('/new', (req, res) => {
   const d = req.body;
   let secret = 0;
@@ -95,6 +99,7 @@ router.post('/new', (req, res) => {
   );
 });
 
+// 유저 검색
 router.post('/new/search', (req, res) => {
   const info = req.body;
   connection.query(
@@ -108,6 +113,52 @@ router.post('/new/search', (req, res) => {
   );
 });
 
+// 로그 수정
+router.get('/:game_id/edit', (req, res) => {
+  if (!req.session.userID) res.redirect('/signin');
+  else {
+    connection.query(
+      `SELECT *, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM game WHERE game_id = ${req.params.game_id};`,
+      (err, data) => {
+        if (err) throw err;
+        res.render('editLog', { data, places });
+      }
+    );
+  }
+});
+router.post('/:game_id/edit', (req, res) => {
+  const d = req.body;
+  let secret = 0;
+  if (d.secret === 'on') secret = 1;
+  connection.query(
+    `UPDATE game SET date = '${d.date}', place = '${d.place}', player_1 = '${
+      d.player1
+    }', player_2 = '${d.player2}', player_3 = '${d.player3}', player_4 = '${
+      d.player4
+    }', score_1 = ${Number(d.score1)}, score_2 = ${Number(
+      d.score2
+    )}, score_3 = ${Number(d.score3)}, score_4 = ${Number(
+      d.score4
+    )}, secret = ${secret} WHERE game_id = ${req.params.game_id};`,
+    (err) => {
+      if (err) throw err;
+      else res.status(201).redirect('/log');
+    }
+  );
+});
+
+// 로그 삭제
+router.delete('/:game_id/delete', (req, res) => {
+  connection.query(
+    `DELETE FROM game WHERE game_id = '${req.params.game_id}';`,
+    (err) => {
+      if (err) throw err;
+      else res.status(200).redirect('/log');
+    }
+  );
+});
+
+// 즐겨찾기 목록
 router.get('/star', (req, res) => {
   const id = req.session.userID;
   if (!id) res.redirect('/signin');
@@ -136,6 +187,7 @@ router.get('/star', (req, res) => {
   }
 });
 
+// 즐겨찾기 추가
 router.post('/star', (req, res) => {
   const info = req.body;
   connection.query(
@@ -147,6 +199,7 @@ router.post('/star', (req, res) => {
   );
 });
 
+// 즐겨찾기 수정
 router.post('/star/edit', (req, res) => {
   const info = req.body;
   connection.query(
@@ -158,6 +211,7 @@ router.post('/star/edit', (req, res) => {
   );
 });
 
+// 즐겨찾기 삭제
 router.delete('/star/:star_id/delete', (req, res) => {
   connection.query(
     `DELETE FROM star WHERE star_id = '${req.params.star_id}';`,
