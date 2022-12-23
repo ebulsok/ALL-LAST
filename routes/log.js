@@ -47,6 +47,7 @@ function getTotal(s1, s2, s3, s4) {
 // log
 router.get('/', (req, res) => {
   const name = req.session.userName;
+
   if (!name) res.redirect('/signin');
   else {
     const getGame = `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}';`;
@@ -76,8 +77,8 @@ router.get('/', (req, res) => {
 
 // 로그 작성
 router.get('/new', (req, res) => {
-  if (req.session.userID) res.render('newLog');
-  else res.redirect('/signin');
+  if (!req.session.userID) res.redirect('/signin');
+  else res.render('newLog', { places });
 });
 router.post('/new', (req, res) => {
   const d = req.body;
@@ -102,6 +103,7 @@ router.post('/new', (req, res) => {
 // 유저 검색
 router.post('/new/search', (req, res) => {
   const info = req.body;
+
   connection.query(
     `SELECT user_name FROM user WHERE user_name = '${info.name}';`,
     (err, data) => {
@@ -130,6 +132,7 @@ router.post('/:game_id/edit', (req, res) => {
   const d = req.body;
   let secret = 0;
   if (d.secret === 'on') secret = 1;
+
   connection.query(
     `UPDATE game SET date = '${d.date}', place = '${d.place}', player_1 = '${
       d.player1
@@ -161,6 +164,7 @@ router.delete('/:game_id/delete', (req, res) => {
 // 즐겨찾기 목록
 router.get('/star', (req, res) => {
   const id = req.session.userID;
+
   if (!id) res.redirect('/signin');
   else {
     connection.query(
@@ -190,6 +194,7 @@ router.get('/star', (req, res) => {
 // 즐겨찾기 추가
 router.post('/star', (req, res) => {
   const info = req.body;
+
   connection.query(
     `INSERT INTO star (game_id, user_id, memo) VALUES (${info.gameID}, '${req.session.userID}', '${info.memo}');`,
     (err) => {
@@ -202,6 +207,7 @@ router.post('/star', (req, res) => {
 // 즐겨찾기 수정
 router.post('/star/edit', (req, res) => {
   const info = req.body;
+
   connection.query(
     `UPDATE star SET memo = '${info.memo}' WHERE star_id = ${info.starID};`,
     (err) => {
