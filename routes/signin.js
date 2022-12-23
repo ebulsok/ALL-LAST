@@ -42,8 +42,8 @@ router.post('/', (req, res) => {
           );
       else {
         if (verifyPassword(info.userPW, data[0].salt, data[0].user_pw)) {
-          req.session.signin = true;
-          req.session.userID = info.userID;
+          req.session.userID = data[0].user_id;
+          req.session.userName = data[0].user_name;
           res.status(200).redirect('/');
         } else
           res
@@ -56,7 +56,7 @@ router.post('/', (req, res) => {
   );
 });
 
-router.get('/logout', (req, res) => {
+router.get('/signout', (req, res) => {
   req.session.destroy((err) => {
     if (err) throw err;
     res.redirect('/');
