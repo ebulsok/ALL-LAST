@@ -52,11 +52,50 @@
         </div>
       </div>
     </nav>
-    <a href="/record">Record</a>
-    <a href="/signup">sign up</a>
-    <a href="/signin">sign in</a>
-    <a href="/log">log</a>
-    <a href="/score">score</a>
+    <div>설명</div>
+    <% if(data.length > 0) { %>
+    <% for(let i = 0; i < data.length; i++) { %>
+    <table class="table caption-top table-borderless text-center">
+      <caption class="">
+        <span><%= data[i].date %>, <%= data[i].place %></span>
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">작사</th>
+          <th scope="col">점수</th>
+          <th scope="col">우마</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td><%= data[i].player_1 %></td>
+          <td><%= data[i].score_1 %></td>
+          <td><%= total[i].total_1 %></td>
+        </tr>
+        <tr>
+          <th scope="row">2</th>
+          <td><%= data[i].player_2 %></td>
+          <td><%= data[i].score_2 %></td>
+          <td><%= total[i].total_2 %></td>
+        </tr>
+        <tr>
+          <th scope="row">3</th>
+          <td><%= data[i].player_3 %></td>
+          <td><%= data[i].score_3 %></td>
+          <td><%= total[i].total_3 %></td>
+        </tr>
+        <tr>
+          <th scope="row">4</th>
+          <td><%= data[i].player_4 %></td>
+          <td><%= data[i].score_4 %></td>
+          <td><%= total[i].total_4 %></td>
+        </tr>
+      </tbody>
+    </table>
+    <% } %>
+    <% } %>
 
   </div>
 </body>
