@@ -32,7 +32,7 @@ router.post('/', (req, res) => {
   const info = req.body;
   const password = createHashedPassword(info.userPW);
   connection.query(
-    `INSERT INTO user (user_id, user_name, user_pw, salt) VALUES ('${info.userID}', '${info.userPW}', '${password.hashedPassword}', '${password.salt}')`,
+    `INSERT INTO user (user_id, user_name, user_pw, salt) VALUES ('${info.userID}', '${info.userName}', '${password.hashedPassword}', '${password.salt}');`,
     (err) => {
       if (err) throw err;
       else res.status(201).redirect('/signin');

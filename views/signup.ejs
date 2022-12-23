@@ -57,7 +57,7 @@
       <div class="row mb-3">
         <label for="userID" class="col-4 col-form-label">아이디</label>
         <div class="col-6">
-          <input type="text" class="form-control" id="userID" name="userID" required>
+          <input type="text" class="form-control" id="userID" name="userID" oninput="oninputHandler(ID)" required>
         </div>
         <input type="button" class="btn btn-secondary col-2 p-1" style="font-size: 10px;" onclick="checkID()" value="중복체크">
       </div>
@@ -70,7 +70,7 @@
       <div class="row mb-3">
         <label for="userName" class="col-4 col-form-label">닉네임</label>
         <div class="col-6">
-          <input type="text" class="form-control" id="userName" name="userName" required>
+          <input type="text" class="form-control" id="userName" name="userName" oninput="oninputHandler(name)" required>
         </div>
         <input type="button" class="btn btn-secondary col-2 p-1" style="font-size: 10px;" onclick="checkName()" value="중복체크">
       </div>
@@ -83,6 +83,11 @@
 <script>
   let idChecked = false;
   let nameChecked = false;
+
+  function oninputHandler(id) {
+    if (id === 'ID') idChecked = false;
+    else if (id === 'name') nameChecked = false;
+  }
 
   function checkID() {
     const data = document.getElementById('userID').value;
