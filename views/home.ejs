@@ -10,25 +10,59 @@
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+  <!-- css -->
+  <link rel="stylesheet" href="/css/font.css">
+  <style>
+    td {
+      width: 30%;
+    }
+
+    .page-item.active>a {
+      background-color: #eee;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container px-4" style="margin-top: 80px; max-width: 600px;">
-    <nav class="navbar bg-light fixed-top m-auto" style="max-width: 600px;">
+  <div class="container px-4" style="margin-top: 90px; max-width: 600px;">
+    <nav class="navbar bg-white border-bottom border-dark fixed-top m-auto" style="max-width: 600px;">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">🀄 All Last</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+        <a class="navbar-brand" href="/?page=1">🀄 오라스</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="offcanvas offcanvas-end offc" style="width: 200px;" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas offcanvas-end offc" tabindex="-1" id="offcanvasNavbar">
           <div class="offcanvas-header">
+            <% if(name) { %>
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><%= name %></h5>
+            <% } else { %>
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">로그인 필요</h5>
+            <% } %>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
           </div>
           <div class="offcanvas-body">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">홈</a>
+                <a class="nav-link active" href="/?page=1">홈</a>
               </li>
+              <% if(name) { %>
+              <li class="nav-item">
+                <a class="nav-link" href="/log/new">기록하기</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/log?page=1">마작 로그</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/score?page=1">나의 점수</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/log/star?page=1">즐겨찾기</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/signin/signout">로그아웃</a>
+              </li>
+              <% } else { %>
               <li class="nav-item">
                 <a class="nav-link" href="/signup">회원가입</a>
               </li>
@@ -36,7 +70,7 @@
                 <a class="nav-link" href="/signin">로그인</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/record">기록하기</a>
+                <a class="nav-link" href="/log/new">기록하기</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/log">마작 로그</a>
@@ -45,23 +79,24 @@
                 <a class="nav-link" href="/score">나의 점수</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">로그아웃</a>
+                <a class="nav-link" href="/log/star">즐겨찾기</a>
               </li>
+              <% } %>
             </ul>
           </div>
         </div>
       </div>
     </nav>
-    <div>설명</div>
+    <div class="text-black-50 text-center my-3">우마 기준: 시작 25000점, 오카 20000점, 10-20 우마<br /></div>
     <% if(data.length > 0) { %>
     <% for(let i = 0; i < data.length; i++) { %>
-    <table class="table caption-top table-borderless text-center">
+    <table class="table caption-top table-borderless text-center my-4">
       <caption class="">
         <span><%= data[i].date %>, <%= data[i].place %></span>
       </caption>
       <thead>
-        <tr>
-          <th scope="col">#</th>
+        <tr class="text-black-50">
+          <th scope="col" class="text-black-50">#</th>
           <th scope="col">작사</th>
           <th scope="col">점수</th>
           <th scope="col">우마</th>
@@ -69,25 +104,25 @@
       </thead>
       <tbody>
         <tr>
-          <th scope="row">1</th>
+          <th scope="row" class="text-black-50">1</th>
           <td><%= data[i].player_1 %></td>
           <td><%= data[i].score_1 %></td>
           <td><%= total[i].total_1 %></td>
         </tr>
         <tr>
-          <th scope="row">2</th>
+          <th scope="row" class="text-black-50">2</th>
           <td><%= data[i].player_2 %></td>
           <td><%= data[i].score_2 %></td>
           <td><%= total[i].total_2 %></td>
         </tr>
         <tr>
-          <th scope="row">3</th>
+          <th scope="row" class="text-black-50">3</th>
           <td><%= data[i].player_3 %></td>
           <td><%= data[i].score_3 %></td>
           <td><%= total[i].total_3 %></td>
         </tr>
         <tr>
-          <th scope="row">4</th>
+          <th scope="row" class="text-black-50">4</th>
           <td><%= data[i].player_4 %></td>
           <td><%= data[i].score_4 %></td>
           <td><%= total[i].total_4 %></td>
@@ -96,8 +131,19 @@
     </table>
     <% } %>
     <% } %>
-
+    <nav>
+      <ul class="pagination pagination-sm justify-content-center mt-5">
+        <% for(let i = 0; i < pageNum; i++) { %>
+        <li class="page-item" id="page<%= i+1 %>"><a class="page-link text-black border-dark" href="/?page=<%=i+1 %>"><%= i+1 %></a></li>
+        <% } %>
+      </ul>
+    </nav>
   </div>
 </body>
+
+<script>
+  const num = 'page' + new URLSearchParams(location.search).get('page');
+  document.getElementById(num).classList.add('active')
+</script>
 
 </html>
