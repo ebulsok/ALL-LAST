@@ -2,20 +2,19 @@
 const express = require('express');
 
 const router = express.Router();
-const mysql = require('mysql');
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: process.env.SQL_USER,
-  password: process.env.SQL_PW,
-  port: '3306',
-  database: 'alllast',
-  multipleStatements: true,
-});
+const connection = require('./dbConnect');
 
-connection.connect();
-
-const places = ['온라인', '마작카페', '마이티마장'];
+const places = [
+  '온라인',
+  '마이티마장',
+  '제니랜드',
+  '이수마장',
+  '마작카페',
+  '역곡마장',
+  '보드게임카페',
+  '기타',
+];
 
 function getTotal(s1, s2, s3, s4) {
   let obj = {};
@@ -46,16 +45,21 @@ function getTotal(s1, s2, s3, s4) {
 // 로그
 router.get('/', (req, res) => {
   const name = req.session.userName;
+  const page = Number(req.query.page) - 1;
 
   if (!name) res.redirect('/signin');
   else {
-    const getGame = `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}' ORDER BY date DESC, place, reg_date DESC;`;
+    const getCnt = `SELECT COUNT(*) as cnt FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}';`;
+    const getGame = `SELECT *, DATE_FORMAT(date, '%Y/%m/%d') AS date FROM game WHERE player_1 = '${name}' OR player_2 = '${name}' OR player_3 = '${name}' OR player_4 = '${name}' ORDER BY date DESC, place, reg_date DESC LIMIT ${
+      page * 5
+    }, 5;`;
     const getStar = `SELECT game_id FROM star WHERE user_id = '${req.session.userID}';`;
-    connection.query(getGame + getStar, (err, data) => {
+    connection.query(getCnt + getGame + getStar, (err, data) => {
       if (err) throw err;
       else {
-        const games = data[0];
-        const stars = data[1];
+        const pageNum = Math.ceil(data[0][0].cnt / 5);
+        const games = data[1];
+        const stars = data[2];
         let total = [];
 
         for (let i = 0; i < games.length; i++) {
@@ -68,7 +72,7 @@ router.get('/', (req, res) => {
             )
           );
         }
-        res.status(200).render('log', { games, total, stars });
+        res.status(200).render('log', { games, total, stars, pageNum, name });
       }
     });
   }
@@ -76,8 +80,9 @@ router.get('/', (req, res) => {
 
 // 로그 작성
 router.get('/new', (req, res) => {
-  if (!req.session.userID) res.redirect('/signin');
-  else res.render('newLog', { places });
+  const name = req.session.userName;
+  if (!name) res.redirect('/signin');
+  else res.render('newLog', { places, name });
 });
 router.post('/new', (req, res) => {
   const d = req.body;
@@ -94,7 +99,7 @@ router.post('/new', (req, res) => {
     )}, ${secret}, now());`,
     (err) => {
       if (err) throw err;
-      else res.status(201).redirect('/log');
+      else res.status(201).redirect('/log?page=1');
     }
   );
 });
@@ -115,19 +120,20 @@ router.post('/new/search', (req, res) => {
 });
 
 // 로그 수정
-router.get('/:game_id/edit', (req, res) => {
+router.get('/edit/:game_id', (req, res) => {
   if (!req.session.userID) res.redirect('/signin');
   else {
+    const name = req.session.userName;
     connection.query(
       `SELECT *, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM game WHERE game_id = ${req.params.game_id};`,
       (err, data) => {
         if (err) throw err;
-        res.render('editLog', { data, places });
+        res.render('editLog', { data, places, name });
       }
     );
   }
 });
-router.post('/:game_id/edit', (req, res) => {
+router.post('/edit/:game_id', (req, res) => {
   const d = req.body;
   let secret = 0;
   if (d.secret === 'on') secret = 1;
@@ -144,20 +150,19 @@ router.post('/:game_id/edit', (req, res) => {
     )}, secret = ${secret} WHERE game_id = ${req.params.game_id};`,
     (err) => {
       if (err) throw err;
-      else res.status(201).redirect('/log');
+      else res.status(201).redirect('/log?page=1');
     }
   );
 });
 
-// 로그 삭제
-router.delete('/:game_id/delete', (req, res) => {
-  connection.query(
-    `DELETE FROM game WHERE game_id = '${req.params.game_id}';`,
-    (err) => {
-      if (err) throw err;
-      else res.status(200).redirect('/log');
-    }
-  );
+// 로그 삭제(star에서도 삭제)
+router.delete('/delete/:game_id', (req, res) => {
+  const dFromGame = `DELETE FROM game WHERE game_id = ${req.params.game_id};`;
+  const dFromStar = `DELETE FROM star WHERE game_id = ${req.params.game_id} AND user_id = '${req.session.userID}';`;
+  connection.query(dFromGame + dFromStar, (err) => {
+    if (err) throw err;
+    else res.status(200).redirect('/log?page=1');
+  });
 });
 
 // 즐겨찾기 목록
@@ -166,27 +171,34 @@ router.get('/star', (req, res) => {
 
   if (!id) res.redirect('/signin');
   else {
-    connection.query(
-      `SELECT s.star_id, s.memo, g.*, DATE_FORMAT(g.date, '%Y/%m/%d') AS date FROM star AS s JOIN game AS g ON s.game_id = g.game_id WHERE user_id = '${id}' ORDER BY date DESC, place, reg_date DESC;`,
-      (err, games) => {
-        if (err) throw err;
-        else {
-          let total = [];
+    const name = req.session.userName;
+    const page = Number(req.query.page) - 1;
+    const getCnt = `SELECT COUNT(*) as cnt FROM star WHERE user_id = '${id}';`;
+    const getGame = `SELECT s.star_id, s.memo, g.*, DATE_FORMAT(g.date, '%Y/%m/%d') AS date FROM star AS s JOIN game AS g ON s.game_id = g.game_id WHERE user_id = '${id}' ORDER BY date DESC, place, reg_date DESC LIMIT ${
+      page * 5
+    }, 5;`;
 
-          for (let i = 0; i < games.length; i++) {
-            total.push(
-              getTotal(
-                (games[i].score_1 - 30000) / 1000,
-                (games[i].score_2 - 30000) / 1000,
-                (games[i].score_3 - 30000) / 1000,
-                (games[i].score_4 - 30000) / 1000
-              )
-            );
-          }
-          res.status(200).render('star', { games, total });
+    connection.query(getCnt + getGame, (err, data) => {
+      if (err) throw err;
+      else {
+        const pageNum = Math.ceil(data[0][0].cnt / 5);
+        const games = data[1];
+
+        let total = [];
+
+        for (let i = 0; i < games.length; i++) {
+          total.push(
+            getTotal(
+              (games[i].score_1 - 30000) / 1000,
+              (games[i].score_2 - 30000) / 1000,
+              (games[i].score_3 - 30000) / 1000,
+              (games[i].score_4 - 30000) / 1000
+            )
+          );
         }
+        res.status(200).render('star', { games, total, pageNum, name });
       }
-    );
+    });
   }
 });
 
@@ -198,7 +210,7 @@ router.post('/star', (req, res) => {
     `INSERT INTO star (game_id, user_id, memo) VALUES (${info.gameID}, '${req.session.userID}', '${info.memo}');`,
     (err) => {
       if (err) throw err;
-      else res.status(201).redirect('/log');
+      else res.status(201).redirect('/log?page=1');
     }
   );
 });
@@ -211,18 +223,18 @@ router.post('/star/edit', (req, res) => {
     `UPDATE star SET memo = '${info.memo}' WHERE star_id = ${info.starID};`,
     (err) => {
       if (err) throw err;
-      else res.status(200).redirect('/log/star');
+      else res.status(200).redirect('/log/star?page=1');
     }
   );
 });
 
 // 즐겨찾기 삭제
-router.delete('/star/:star_id/delete', (req, res) => {
+router.delete('/star/delete/:star_id', (req, res) => {
   connection.query(
     `DELETE FROM star WHERE star_id = '${req.params.star_id}';`,
     (err) => {
       if (err) throw err;
-      else res.status(200).redirect('/log/star');
+      else res.status(200).redirect('/log/star?page=1');
     }
   );
 });
