@@ -3,18 +3,8 @@ const express = require('express');
 
 const router = express.Router();
 const crypto = require('crypto');
-const mysql = require('mysql');
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: process.env.SQL_USER,
-  password: process.env.SQL_PW,
-  port: '3306',
-  database: 'alllast',
-  multipleStatements: true,
-});
-
-connection.connect();
+const connection = require('./dbConnect');
 
 const verifyPassword = (password, salt, userPassword) => {
   const hashed = crypto
@@ -44,7 +34,7 @@ router.post('/', (req, res) => {
         if (verifyPassword(info.userPW, data[0].salt, data[0].user_pw)) {
           req.session.userID = data[0].user_id;
           req.session.userName = data[0].user_name;
-          res.status(200).redirect('/');
+          res.status(200).redirect('/?page=1');
         } else
           res
             .status(300)
@@ -59,7 +49,7 @@ router.post('/', (req, res) => {
 router.get('/signout', (req, res) => {
   req.session.destroy((err) => {
     if (err) throw err;
-    res.redirect('/');
+    res.redirect('/?page=1');
   });
 });
 

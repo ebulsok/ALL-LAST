@@ -3,18 +3,8 @@ const express = require('express');
 
 const router = express.Router();
 const crypto = require('crypto');
-const mysql = require('mysql');
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: process.env.SQL_USER,
-  password: process.env.SQL_PW,
-  port: '3306',
-  database: 'alllast',
-  multipleStatements: true,
-});
-
-connection.connect();
+const connection = require('./dbConnect');
 
 const createHashedPassword = (password) => {
   const salt = crypto.randomBytes(64).toString('base64');
