@@ -10,7 +10,7 @@ const connection = require('./dbConnect');
 router.get('/', (req, res) => {
   const name = req.session.userName;
   let page = Number(req.query.page) - 1;
-  if (!req.query.page) page = 1;
+  if (!req.query.page) page = 0;
 
   const getCnt = 'SELECT COUNT(*) as cnt FROM game WHERE secret = 0;';
   const getData = `SELECT *, DATE_FORMAT(date, "%Y-%m-%d") AS date FROM game WHERE secret = 0 ORDER BY game_id DESC LIMIT ${
